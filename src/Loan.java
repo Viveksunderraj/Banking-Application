@@ -10,16 +10,25 @@ public class Loan extends Transaction{
 	
 	
 	public boolean availLoan() {
-		double balance;
-		balance = Account.getAccountBalance(getTransactionAccountNumber1());
+		double balance, newBalance;
+		balance = AccountDAO.getAccountBalance(getTransactionAccountNumber1());
 		
 		if(balance < 0) {
-			System.out.println("An Existing loan of Rs." + (balance*(-1)) + " is Pending, Please Repay the existing loan to avail a new loan");
+			System.out.println("An Existing loan of Rs." + (balance) + " is Pending, Please Repay the existing loan to avail a new loan");
 			return false;
 		}
 		else {
-		balance -= getTransactionAmount();
-		System.out.println("A loan of Rs." + getTransactionAmount() + " has been Availed");
+		newBalance = getTransactionAmount();
+		setAccountBalance(newBalance);
+		
+		if(!TransactionDAO.addTransactionDetails(this)) {
+			return false;
+		}
+		if(!AccountDAO.updateAccountBalance(getAccountBalance(), getTransactionAccountNumber1())) {
+			return false;
+		}
+		
+		System.out.println("A loan of Rs." + newBalance + " has been Availed");
 		return true;
 		}
 	}

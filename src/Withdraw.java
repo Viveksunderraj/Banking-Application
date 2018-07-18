@@ -14,8 +14,8 @@ public class Withdraw extends Transaction {
 		double balance, newBalance;
 		int accountType;
 		
-		balance = Account.getAccountBalance(getTransactionAccountNumber1());		
-		accountType = Account.getAccountType(getTransactionAccountNumber1());
+		balance = AccountDAO.getAccountBalance(getTransactionAccountNumber1());		
+		accountType = AccountDAO.getAccountType(getTransactionAccountNumber1());
 		newBalance = balance - getTransactionAmount();
 		
 		if(accountType == Account.AccountType.SAVINGS.getValue()) {
@@ -32,8 +32,12 @@ public class Withdraw extends Transaction {
 			}
 		
 		setAccountBalance(newBalance);
-		addTransactionDetails();
-		updateTransaction();
+		if(!TransactionDAO.addTransactionDetails(this)) {
+			return false;
+		}
+		if(!AccountDAO.updateAccountBalance(getAccountBalance(), getTransactionAccountNumber1())) {
+			return false;
+		}
 		
 		System.out.println("An amount of Rs. "+ getTransactionAmount() + " has been withdrawn from your " + getTransactionAccountNumber1() + " account" );
 		System.out.println("Your " + getTransactionAccountNumber1() + " account Balance is : Rs."+ getAccountBalance());

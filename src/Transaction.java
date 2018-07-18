@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class Transaction {
 
-	
+	private int transactionID;
 	private double transactionAmount;
 	private double accountBalance;
 	private int customerID;
@@ -16,7 +16,7 @@ public class Transaction {
 	private int transactionSubType;
 	private String transactionDateTime;
 	private String description;
-	
+	private String transactionName;
 	
 	
 	public enum TransactionType {
@@ -32,9 +32,11 @@ public class Transaction {
 		}
 	}
 	
-	
-	
-	
+	public Transaction() {
+		super();
+	}
+
+
 	public Transaction(double transactionAmount, double accountBalance, int customerID, int branchID,
 			int transactionAccountNumber1, int transactionAccountNumber2, int transactionType, int transactionSubType,
 			String transactionDateTime, String description) {
@@ -50,6 +52,16 @@ public class Transaction {
 		this.description = description;
 	}
 	
+	
+	
+	public int getTransactionID() {
+		return transactionID;
+	}
+
+
+	public void setTransactionID(int transactionID) {
+		this.transactionID = transactionID;
+	}
 
 	public double getTransactionAmount() {
 		return transactionAmount;
@@ -130,75 +142,22 @@ public class Transaction {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	
+	public String getTransactionName() {
+		return transactionName;
+	}
 
-	public void addTransactionDetails() {
-		
-		Connection con = null;
-		try
-		{
-			Class.forName("com.mysql.jdbc.Driver");
-			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/BankDB","root","");
-			String sql = "insert into Transactions(TransactionID, TransactionType, BranchID, CustomerID, TransactionAccountNumber1, TransactionAccountNumber2, Amount, CurrentBalance, TransactionDateTIme, TransactionSubType, Description) values(null,?,?,?,?,?,?,?,NOW(),?,?)";
-			
-			try(PreparedStatement pstmt =  con.prepareStatement(sql)) {
-				pstmt.setInt(1, this.transactionType);
-				pstmt.setInt(2, this.branchID);
-				pstmt.setInt(3, this.customerID);
-				pstmt.setInt(4, this.transactionAccountNumber1);
-				pstmt.setInt(5, this.transactionAccountNumber2);
-				pstmt.setDouble(6, this.transactionAmount);
-				pstmt.setDouble(7, this.accountBalance);
-				pstmt.setInt(8, this.transactionSubType);
-				pstmt.setString(9, this.description);
-				pstmt.executeUpdate();
-			}
-			catch(SQLException ex)
-			{
-				System.out.println(ex.getMessage());
-			}
-			
-		} 
-		catch(Exception e) {
-			e.printStackTrace();
-			System.err.println(e.getClass().getName()+": "+e.getMessage());
-			System.exit(0);
-		}
-		
+
+	public void setTransactionName(String transactionName) {
+		this.transactionName = transactionName;
 	}
-	
-	public void updateTransaction() {
-		
-		Connection con = null;
-		try
-		{
-			Class.forName("com.mysql.jdbc.Driver");
-			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/BankDB","root","");
-			String sql = "update Accounts SET AccountBalance=? where AccountNumber=?";
-			
-			try(PreparedStatement pstmt =  con.prepareStatement(sql)) {
-				pstmt.setDouble(1, getAccountBalance());
-				pstmt.setInt(2, getTransactionAccountNumber1());
-				pstmt.executeUpdate();
-			}
-			catch(SQLException ex)
-			{
-				System.out.println(ex.getMessage());
-			}
-			
-		} 
-		catch(Exception e) {
-			e.printStackTrace();
-			System.err.println(e.getClass().getName()+": "+e.getMessage());
-			System.exit(0);
-		}
-		
-		
-	}
-	
+
+
 	public static void displayTransactionHistory(int customerID, int accountNumber) {
 		Connection con = null;
 	 	int flag = 0;
-	 	String subType =  null;
+	 	//String subType =  null;
 		try
 		{
 			Class.forName("com.mysql.jdbc.Driver");
@@ -208,16 +167,17 @@ public class Transaction {
 				pstmt.setInt(1, customerID);
 				pstmt.setInt(2, accountNumber);
 				ResultSet rs = pstmt.executeQuery();
-				if(rs.getInt("TransactionSubType") == 1) {
+				
+				/*if(rs.getInt("TransactionSubType") == 1) {
 					subType = "Credit";
 				}
 				else {
 					subType = "Debit";
-				}
+				}*/
 				while(rs.next()) {
 					BankApplication.printSeparator();
 					System.out.println("Transaction Type = " + rs.getString("TransactionName") + 
-									   "Transaction Sub Type = " + subType +
+									   ", Transaction Sub Type = " + rs.getString("TransactionSubtype") +
 									   "\nTransaction Date & Time = " + rs.getString("transactiondatetime") +
 									   "\nTransaction Amount = " + rs.getDouble("Amount") +
 									   "\nAccount Balance = " + rs.getDouble("CurrentBalance") +
@@ -230,7 +190,7 @@ public class Transaction {
 			}
 			catch(SQLException ex)
 			{
-				System.out.println(ex.getMessage());
+				System.out.println(ex.getMessage() + "HELLO");
 			}
 			
 		} 

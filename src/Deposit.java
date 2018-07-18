@@ -13,9 +13,8 @@ public class Deposit extends Transaction {
 				
 		double balance, newBalance;
 		int accountType;
-		
-		balance = Account.getAccountBalance(getTransactionAccountNumber1());
-		accountType = Account.getAccountType(getTransactionAccountNumber1());
+		balance = AccountDAO.getAccountBalance(getTransactionAccountNumber1());
+		accountType = AccountDAO.getAccountType(getTransactionAccountNumber1());
 		newBalance = balance + getTransactionAmount();
 		
 		if(accountType == Account.AccountType.LOAN.getValue()) {
@@ -26,15 +25,19 @@ public class Deposit extends Transaction {
 		}
 		
 		setAccountBalance(newBalance);
-		addTransactionDetails();
-		updateTransaction();
+		
+		if(!TransactionDAO.addTransactionDetails(this)) {
+			return false;
+		}
+		if(!AccountDAO.updateAccountBalance(getAccountBalance(), getTransactionAccountNumber1())) {
+			return false;
+		}
 		
 		
 		if(getTransactionType() < TransactionType.TRANSFER_WITHIN_ACOOUNTS.getValue() || getTransactionType() == TransactionType.REPAY_LOAN_THROUGH_DEPOSIT.getValue()) {
 		System.out.println("An amount of Rs. "+ getTransactionAmount() + " has been deposited to " + getTransactionAccountNumber1() + " account" +"\nBalance is: " + getAccountBalance() );
 		   }
-		return true;
-					
+		return true;	
 	}
 	
 }
